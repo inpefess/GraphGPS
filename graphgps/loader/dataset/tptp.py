@@ -40,11 +40,15 @@ class TPTPDataset(InMemoryDataset):
                 raw_protobuf = raw_file.read()
             data_proto.ParseFromString(raw_protobuf)
             data_item = Data(
-                x=torch.Tensor(data_proto.x).view(-1, 1),
+                x=torch.nn.functional.one_hot(
+                    torch.LongTensor(data_proto.x), 9
+                ).float(),
                 edge_index=torch.LongTensor(
                     [data_proto.edge_index_source, data_proto.edge_index_target]
                 ),
-                edge_attr=torch.Tensor(data_proto.edge_attr).view(-1, 1),
+                edge_attr=torch.nn.functional.one_hot(
+                    torch.LongTensor(data_proto.edge_attr), 3
+                ).float(),
                 y=labels[int(os.path.splitext(raw_filename)[0])],
             )
             graphs.append(data_item)
